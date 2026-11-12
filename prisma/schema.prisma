@@ -21,6 +21,7 @@ model Order {
   status       OrderStatus @default(PENDING)
   providerOrderId String?  @unique
   paymentStatus String?
+  paymentMethod String?
   customerName String
   email        String
   phone        String
