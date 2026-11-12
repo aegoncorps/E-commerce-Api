@@ -1,20 +1,23 @@
-# Aegon Store — backend
+# E-commerce-Api
 
-Base independente em Node.js 24, Hono, Prisma e PostgreSQL (Neon). A API usa uma única função em `api/index.ts` na Vercel.
+Backend independente da Aegon Store em Node.js 24, Hono, Prisma e PostgreSQL (Neon). A API é publicada como uma função na Vercel.
 
 ## Estado atual
 
-O projeto disponibiliza `GET /api/health`, `GET /api/products` e `POST /api/orders`. O preço é consultado no banco, em centavos. O pedido não recebe nem armazena dados de cartão. Os pedidos criados são apenas pendentes: ainda não há gateway, cobrança, confirmação, controle de estoque, cálculo de frete ou acesso administrativo. Não use para vendas reais nesta etapa.
+Rotas disponíveis: `GET /api/health`, `GET /api/products`, `POST /api/orders` e `POST /api/webhooks/mercadopago`. O webhook valida a assinatura e consulta a ordem no Mercado Pago antes de atualizar o status do pedido.
+
+O endpoint de pedidos cria pedidos pendentes usando preços do banco. A criação e cobrança de pagamentos via Mercado Pago ainda precisam ser integradas. Não são recebidos nem armazenados dados completos de cartão.
 
 ## Desenvolvimento
 
 1. Instale Node.js 24 e execute `npm install`.
-2. Copie `.env.example` para `.env`. Configure `DATABASE_URL` com a conexão do Neon e `DIRECT_URL` com a conexão direta para migrações. Defina `FRONTEND_ORIGIN` com a origem exata do frontend.
-3. Execute `npm run db:migrate -- --name init` e `npm run dev`.
-4. Cadastre produtos de teste no banco antes de criar pedidos. Os IDs enviados pelo frontend precisam corresponder aos IDs do banco.
+2. Copie `.env.example` para `.env`. Configure `DATABASE_URL` e `DIRECT_URL` com as conexões do Neon; `FRONTEND_ORIGIN` deve ser a origem exata do frontend.
+3. Configure `MP_ACCESS_TOKEN` e `MP_WEBHOOK_SECRET` localmente. Mantenha segredos fora do Git.
+4. Execute `npm run db:migrate -- --name init` e `npm run dev`.
+5. Cadastre os produtos de teste no banco antes de criar pedidos.
 
-`npm run build` gera o Prisma Client e verifica TypeScript. Para produção, crie e versione as migrações em desenvolvimento e execute `npm run db:deploy` no ambiente configurado. Configure as variáveis de ambiente também na Vercel e selecione Node 24 no projeto.
+`npm run build` gera o Prisma Client e verifica TypeScript. Em produção, configure as variáveis secretas na Vercel, selecione Node 24 e aplique migrações com `npm run db:deploy`.
 
-## Próxima etapa
+## Webhook
 
-Integrar Mercado Pago em teste: tokenização de cartão no cliente, Pix, idempotência, webhook com assinatura verificada e consulta ao provedor, persistência de tentativas e estados de pagamento, proteção contra abuso e integração do checkout Vue. A conta, credenciais de teste e banco Neon ainda precisam ser configurados. Nunca envie segredos ou dados de cartão para o repositório.
+Após publicar, configure no Mercado Pago o evento **Order** para `https://SEU-BACKEND.vercel.app/api/webhooks/mercadopago`. A assinatura gerada deve ficar em `MP_WEBHOOK_SECRET` no ambiente da Vercel.
