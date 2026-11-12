@@ -7,7 +7,7 @@ import { db } from './db.js'
 
 const app = new Hono().basePath('/api')
 app.use('*', secureHeaders())
-app.use('*', cors({ origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173', allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['Content-Type', 'Idempotency-Key'] }))
+app.use('*', cors({ origin: ['https://ecommerce.aegoncorps.com.br', process.env.FRONTEND_ORIGIN || 'http://localhost:5173'], allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['Content-Type', 'Idempotency-Key'] }))
 app.get('/health', c => c.json({ status: 'ok' }))
 app.get('/products', async c => {
   const products = await db.product.findMany({ where: { active: true }, select: { id: true, name: true, priceCents: true } })
